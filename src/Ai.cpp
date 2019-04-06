@@ -5,6 +5,7 @@
 #include "Matrix.hpp"
 #include "Entity.hpp"
 #include "Action.hpp"
+#include "ActionSystem.hpp"
 #include "Ai.hpp"
 #include "Gui.hpp"
 #include "Stats.hpp"
@@ -76,8 +77,9 @@ bool PlayerAi::moveOrInteract(int target_x, int target_y) {
 		for (int i = 0; i < (int)engine.actors.size(); i++) {
 			if ((engine.actors[i]->x == target_x) &&
 				 (engine.actors[i]->y == target_y)) {
-				engine.actions[engine.actors[0]->ai->mode]->update(owner, engine.actors[i]);
-					// mode 0 = CHOP,
+				engine.as->update(engine.actions[engine.actors[0]->ai->mode], owner, engine.actors[i]);
+					// mode 0 = GRAB, 1 CHOP, 2 STIR, 3 (HEAT variations), 4 (CHILL variations),
+					// 5 EAT, 6 SNIFF, 7 TALK, 8 TRANSFORM
 				return true;
 			}
 		}
@@ -122,6 +124,7 @@ EnemyAi::EnemyAi(Entity* e)  {
 }
 
 void EnemyAi::update() {
+	if(turn_skip) { turn_skip = false; return; }
 	if (owner->stats && owner->stats->isDead()) { return; }
 	int target_x = engine.player->x;
 	int target_y = engine.player->y;

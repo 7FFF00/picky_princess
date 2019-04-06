@@ -21,7 +21,7 @@ protected:
 
 	std::vector<Message*> log;
 
-	void renderBar(int x, int y, int width, const char* bar_name, float value, float max_value,
+	void renderBar(int x, int y, int width, float value, float max_value,
 		const char* bar_color, const char* back_color);
 };
 

@@ -11,7 +11,7 @@ public:
 	~ActionSystem();
   void createAction(std::vector<std::string> act_comps);
   // void modifyAction(Action act, ActionComponent comp, std::string input);
-  // void update(Action act, Entity* user, Entity* target);
+  void update(Action* act, Entity* user, Entity* target);
   // void update(Action act, Entity* user, int x, int y);
   // void render();
 };

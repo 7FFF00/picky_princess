@@ -63,12 +63,12 @@ void Engine::init() {
 
 	start_coord = map->findWalkable();
 	Entity* enemy2 = new Entity("Curdlord", "orange", start_coord[0], start_coord[1], 'C');
-	enemy->ai = new EnemyAi(enemy2);
+	enemy2->ai = new EnemyAi(enemy2);
 	actors.push_back(enemy2);
 
 	start_coord = map->findWalkable();
 	Entity* enemy3 = new Entity("Garlic Jr.", "#654321", start_coord[0], start_coord[1], 'G');
-	enemy->ai = new EnemyAi(enemy3);
+	enemy3->ai = new EnemyAi(enemy3);
 	actors.push_back(enemy3);
 
 	// Action* basic_attack = new Action();

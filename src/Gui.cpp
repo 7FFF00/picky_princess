@@ -108,31 +108,48 @@ void Gui::render() {
 	terminal_print(x_pos, y_pos + 1, player.c_str());
 
 	// BAR Displays
-	std::string hp, patience, cute,
+	std::string hp, patience, cute, spacing_justify,
 		bump_mode_select, bump_mode_deselect, bump_mode_deselect2;
+	int spacing_count;
+
 	// HP Display
-	renderBar(x_pos, y_pos + 3, 20, "Tough", (float)engine.player->stats->hp,
+	renderBar(x_pos, y_pos + 3, 20, (float)engine.player->stats->hp,
 		(float)engine.player->stats->max_hp, "#E05050", "#803030");
 	terminal_layer(1); // overlay text placed on layer above background color bars
-	hp = "HP: " + std::to_string(engine.player->stats->hp) +
+	hp = "HEART: " + std::to_string(engine.player->stats->hp) +
+		"/" + std::to_string(engine.player->stats->max_hp);
+	spacing_count = 20 - hp.size();
+	spacing_justify = "";
+	for (int i = 0; i < spacing_count; i++) { spacing_justify += " ";	}
+	hp = "HEART: " + spacing_justify + std::to_string(engine.player->stats->hp) +
 		"/" + std::to_string(engine.player->stats->max_hp);
 	terminal_color("#303050");
 	terminal_print(x_pos, y_pos + 3, hp.c_str());
 
-	// PATIENCE Display
-	renderBar(x_pos, y_pos + 4, 20, "Spice", (float)engine.player->stats->patience,
+	// SPICE Display, aka Stamina
+	renderBar(x_pos, y_pos + 4, 20, (float)engine.player->stats->patience,
 		(float)engine.player->stats->max_patience, "#ffb357", "#df9337");
 	terminal_layer(1); // overlay text placed on layer above background color bars
 	patience = "SPICE: " + std::to_string(engine.player->stats->patience) +
+		"/" + std::to_string(engine.player->stats->max_patience);
+	spacing_count = 20 - patience.size();
+	spacing_justify = "";
+	for (int i = 0; i < spacing_count; i++) { spacing_justify += " ";	}
+	patience = "SPICE: " + spacing_justify + std::to_string(engine.player->stats->patience) +
 		"/" + std::to_string(engine.player->stats->max_patience);
 	terminal_color("#303050");
 	terminal_print(x_pos, y_pos + 4, patience.c_str());
 
 	// CUTE Display
-	renderBar(x_pos, y_pos + 5, 20, "Cute", (float)engine.player->stats->cute,
+	renderBar(x_pos, y_pos + 5, 20, (float)engine.player->stats->cute,
 		(float)engine.player->stats->max_cute, "#fdfd96", "#cdcd66");
 	terminal_layer(1); // overlay text placed on layer above background color bars
 	cute = "CUTE: " + std::to_string(engine.player->stats->cute) +
+		"/" + std::to_string(engine.player->stats->max_cute);
+	spacing_count = 20 - cute.size();
+	spacing_justify = "";
+	for (int i = 0; i < spacing_count; i++) { spacing_justify += " ";	}
+	cute = "CUTE: " + spacing_justify + std::to_string(engine.player->stats->cute) +
 		"/" + std::to_string(engine.player->stats->max_cute);
 	terminal_color("#303050");
 	terminal_print(x_pos, y_pos + 5, cute.c_str());
@@ -241,11 +258,12 @@ void Gui::message(const char* color, std::string text) {
 }
 
 void Gui::message(const char* color, std::stringstream& text_buffer) {
+	// for c style string concatenation
 	message(color, text_buffer.str());
 	text_buffer.str(std::string());
 }
 
-void Gui::renderBar(int x, int y, int width, const char* bar_name, float value, float max_value,
+void Gui::renderBar(int x, int y, int width, float value, float max_value,
 	const char* bar_color, const char* back_color) {
 		float percent;
 		terminal_layer(0); // need to be on layer 0 to manipulate background color

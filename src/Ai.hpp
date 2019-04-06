@@ -5,6 +5,7 @@ class Ai {
 public:
 	class Entity* owner;
 	int mode;
+	bool turn_skip = false;	// to indicate if a turn is to be skipped
 	virtual ~Ai() {}; // derived class, hence virtual destructor
 	virtual void update() = 0;	// = 0 declares it as purely virtual
 };

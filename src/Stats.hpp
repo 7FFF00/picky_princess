@@ -15,7 +15,8 @@ public:
 
 	int sight_radius; // sight radius
 
-	int atk; // strength, melee damage
+	int atk; // strength, melee damage, default is 1 for most things
+		// size = damage reduction, 0 is small, 1 is medium, 2 is large
 
 	int sweet; // flavor strength, 1-10
 	int salty; // flavor strength, 1-10

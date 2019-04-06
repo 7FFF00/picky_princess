@@ -39,6 +39,7 @@ enum ActionComponent {
   AC_ENTITY_COMMAND,    // send command for target entity to perform
   AC_CONNECTED_ITEM,    // instance of an item a particular action points to
   AC_TRANSFORM_MAP,     // map transformation, tile changing, wall digging etc
+  AC_TRANSFORM_ENTITY,  // entity transformation, entity1 -> new entity
 };
 
 class Action {

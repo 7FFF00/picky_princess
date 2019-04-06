@@ -1,8 +1,10 @@
 #include <string>
+#include <sstream> // for taking a string stream to act as a text buffer, easy parsing of var
 #include <vector>
 #include <iostream>
 #include "Entity.hpp"
 #include "Engine.hpp"
+#include "Gui.hpp"
 #include "Stats.hpp"
 #include "Action.hpp"
 #include "ActionSystem.hpp"
@@ -35,27 +37,28 @@ ActionSystem::ActionSystem() {
   // createAction(basic_components);
 
   std::vector<std::string> chop;
-  chop.push_back("0 Name: Chop!");
+  chop.push_back("0 Name: Chop");
+  chop.push_back("1 Power: 1");
   createAction(chop);
 
   std::vector<std::string> stir;
-  stir.push_back("0 Name: Stir!");
+  stir.push_back("0 Name: Stir");
   createAction(stir);
 
   std::vector<std::string> heat;
-  heat.push_back("0 Name: Heat!");
+  heat.push_back("0 Name: Heat");
   createAction(heat);
 
   std::vector<std::string> ice;
-  ice.push_back("0 Name: Ice!");
+  ice.push_back("0 Name: Ice");
   createAction(ice);
 
   std::vector<std::string> eat;
-  eat.push_back("0 Name: Eat!");
+  eat.push_back("0 Name: Eat");
   createAction(eat);
 
   std::vector<std::string> sniff;
-  sniff.push_back("0 Name: Sniff!");
+  sniff.push_back("0 Name: Sniff");
   createAction(sniff);
 }
 
@@ -78,23 +81,36 @@ void ActionSystem::createAction(std::vector<std::string> act_comps) {
 //
 // }
 //
-// void ActionSystem::update(Action act, Entity* user, Entity* target) {
-//   // ACTION COMPOSITE SYSTEM to update by reading (potentially) queued
-//   // action calls by their passed and varied components, to allow for unique
-//   // combinations
-//
-//   // if (act.effect.find(AC_POWER)) {}
-//   // if (act.effect.find(AC_ELEMENT)) {}
-//   // if (act.effect.find(AC_STATUS)) {}
-//   // if (act.effect.find(AC_RANGE)) {}
-//   // if (act.effect.find(AC_SPLASH)) {}
-//   // if (act.effect.find(AC_MESSAGE)) {}
-//   // if (act.effect.find(AC_ENTITY_SHIFT)) {}
-//   // if (act.effect.find(AC_ENTITY_GENERATE)) {}
-//   // if (act.effect.find(AC_ENTITY_COMMAND)) {}
-//   // if (act.effect.find(AC_CONNECTED_ITEM)) {}
-//   // if (act.effect.find(AC_TRANSFORM_MAP)) {}
-// }
+void ActionSystem::update(Action* act, Entity* user, Entity* target) {
+  // ACTION COMPOSITE SYSTEM to update by reading (potentially) queued
+  // action calls by their passed and varied components, to allow for unique
+  // combinations
+
+  if (act->effect.find(AC_NAME) != act->effect.end()) {
+    std::stringstream s;
+    s << user->name << " used " << act->effect[AC_NAME] << "!";
+    engine.gui->message("#3150d1", s);
+  }
+  if (act->effect.find(AC_MESSAGE) != act->effect.end()) {
+    engine.gui->message("#3150d1", act->effect[AC_MESSAGE]);
+  }
+  if (act->effect.find(AC_POWER) != act->effect.end()) {
+    int power = std::stoi(act->effect[AC_POWER]);
+
+  	std::stringstream s;
+  	if (target->stats && !target->stats->isDead()) {
+  		// if target has STATS module, and NOT dead, entity attacks target
+  		s << user->name << " deals " << power << " to " << target->name << ".";
+  		engine.gui->message("#404070", s);
+  		target->stats->takeDamage(power - (target->size - 2));
+  	}
+  	else {
+  		// target is dead
+  		s << target->name << " is dead, the attack is ineffective.";
+  		engine.gui->message("#404070", s);
+  	}
+  }
+}
 //
 // void ActionSystem::update(Action act, Entity* user, int x, int y) {}
 //

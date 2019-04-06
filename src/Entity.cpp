@@ -16,7 +16,7 @@ char name [MAX_NAME_LENGTH];
 
 Entity::Entity(const char* name, const char* color, int x, int y, char ch):
 	name(name), color(color), x(x), y(y), avatar(ch), sprite(NULL), blocks(true),
-	stats(NULL), ai(NULL), title("") {
+	stats(NULL), ai(NULL), title(""), size(1), type(VEG) {
 	map = engine.map;
 	stats = new Stats(this);
 	// ai = new PlayerAi();
