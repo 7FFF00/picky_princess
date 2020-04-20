@@ -12,6 +12,8 @@
 #include "Gui.hpp"
 #include "Engine.hpp"
 #include "BearLibTerminal.h"
+#include <cereal/archives/json.hpp>
+#include <fstream>
 // #include "PerlinNoise.hpp"
 // #include "Rectangle.hpp"
 
@@ -19,7 +21,7 @@
 
 Engine::Engine(unsigned int width, unsigned int height):
 	window_width(width), window_height(height), ui_height(10), ui_width(30),
-	log_width(50) {
+	log_width(40) {
 	init();
 }
 
@@ -30,9 +32,9 @@ void Engine::init() {
 	//	terminal and display variable instantiation
 	terminal_open();
 	// size = width x height
-	terminal_set("window.size = 140x50; "
-							 "font: fonts/ProggySquare.ttf, size=16; "
-							 "window.title = 'Picky Princess'");
+	terminal_set("window.size = 110x45; "
+		"font: fonts/ProggySquare.ttf, size=16; "
+		"window.title = 'Picky Princess'");
 	default_color = "white";
 	default_bgcolor = "black";
 
@@ -50,12 +52,14 @@ void Engine::init() {
 	int* start_coord = map->findWalkable();
 	terminal_set("0xE000: sprites/gulp_sheet.png, size=16x16, align=center");
 	terminal_set("0xE100: resources/princess_crop.png");
+	terminal_set("0xE200: fonts/16x16-RogueYun-AgmEdit.png, size=16x16, align=center");
 	player = new Entity("Apron", "#7FFF00", start_coord[0], start_coord[1], '@');
 	player->ai = new PlayerAi(player);
-	player->sprite = "\uE000";
+	player->sprite = "\uE001"; // E000: Gulp, E001: White Rabbit, E002: Lop-Eared Rabbit
 	player->title = "Breadsmith";
 	actors.push_back(player);
 
+	// basic enemies
 	start_coord = map->findWalkable();
 	Entity* enemy = new Entity("Shroomba", "blue", start_coord[0], start_coord[1], 'M');
 	enemy->ai = new EnemyAi(enemy);
@@ -71,8 +75,22 @@ void Engine::init() {
 	enemy3->ai = new EnemyAi(enemy3);
 	actors.push_back(enemy3);
 
-	// Action* basic_attack = new Action();
-	// actions.push_back(basic_attack);
+	// basic foods
+	for (int i = 0; i < 40; i++) {
+		start_coord = map->findWalkable();
+		Entity* food;
+		int pick = rng(1, 3);
+		if (pick == 1) {
+			food = new Entity("Orange", "orange", start_coord[0], start_coord[1], 'o', 2);
+		}
+		else if (pick == 2) {
+			food = new Entity("Apple", "red", start_coord[0], start_coord[1], 'a', 2);
+		}
+		else if (pick == 3) {
+			food = new Entity("Plum", "purple", start_coord[0], start_coord[1], 'p', 2);
+		}
+		actors.push_back(food);
+	}
 
 	// START_SCREEN
 	// fov has not been computed yet
@@ -88,7 +106,7 @@ void Engine::update() {
 
 	turn_count++;
 	for (int i = 0; i < (int)actors.size(); i++) {
-		if (actors[i]->ai != NULL) {
+		if (actors[i]->ai != NULL && actors[i]->parent == NULL) {
 			// if gameState == NEW_TURN, then do other turns
 			actors[i]->update();
 		}
@@ -113,6 +131,7 @@ void Engine::render() {
 	map->render();
 	// render in reverse order so actors[0] aka player, and older actors are rendered last
 	for (int i = (int)actors.size() - 1; i >= 0; i--) { actors[i]->render(); }
+
 	terminal_refresh();
 }
 

@@ -27,7 +27,7 @@ void Map::init() {
 	cell_map = Matrix<Cell*>(width, height, true);
 	fov_map = Matrix<bool>(width, height);
 
-	Rectangle test_map_rect = Rectangle(width, height);
+	// Rectangle test_map_rect = Rectangle(width, height);
 	// genDungeonBSP(test_map_rect);
 	genRandRooms(30);
 	genConnections();
@@ -175,12 +175,12 @@ void Map::render() {
 	// static const char* bgcolor_water = "blue";
 
 	static const char* fgcolor_seen = "#b0b0b0";
-	static const char* fgcolor_explored = "#b1acc9";
-	static const char* fgcolor_hidden = "black";
+	// static const char* fgcolor_explored = "#b1acc9";
+	// static const char* fgcolor_hidden = "black";
 
 	static const char* bgcolor_seen = "#621D59";
-	static const char* bgcolor_explored = "#b1acd9";
-	static const char* bgcolor_hidden = "black";
+	// static const char* bgcolor_explored = "#b1acd9";
+	// static const char* bgcolor_hidden = "black";
 	// static const char* fgcolor_explored = "#404040";
 	// static const char* fgcolor_hidden = "black";
 

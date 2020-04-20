@@ -14,9 +14,9 @@
 const int MAX_NAME_LENGTH = 16;
 char name [MAX_NAME_LENGTH];
 
-Entity::Entity(const char* name, const char* color, int x, int y, char ch):
+Entity::Entity(const char* name, const char* color, int x, int y, char ch, int size):
 	name(name), color(color), x(x), y(y), avatar(ch), sprite(NULL), blocks(true),
-	stats(NULL), ai(NULL), title(""), size(1), type(VEG) {
+	stats(NULL), ai(NULL), title(""), size(size), type(VEG), parent(NULL), child(NULL) {
 	map = engine.map;
 	stats = new Stats(this);
 	// ai = new PlayerAi();
@@ -47,4 +47,37 @@ void Entity::render() const {
 
 float Entity::getDistance(int cx, int cy) {
 	return map->getDistance(x, y, cx, cy);
+}
+
+bool Entity::isInFamily(Entity* a) {
+	// traverse parent and children pointer nodes to see if a exists in any of b's list
+	// a never changes and is the comparator, b is explored recursively to check for a
+	if (a->parent == this || a->child == this || a == this) { return true; } // related
+	else if (a->parent == NULL && a->child == NULL) { return false; }
+	else {
+		Entity* ent_ptr_to_test = a->parent;
+		while (ent_ptr_to_test != NULL) {
+			// start testing upwards through the heads/parents
+			if (ent_ptr_to_test == this) { return true; }
+			else { ent_ptr_to_test = ent_ptr_to_test->parent; }
+		}
+
+		ent_ptr_to_test = a->child;
+		while (ent_ptr_to_test != NULL) {
+			// start testing downards through tails/children
+			if (ent_ptr_to_test == this) { return true; }
+			else { ent_ptr_to_test = ent_ptr_to_test->child; }
+		}
+	}
+	return false; // if code reaches this far then nothing in heads and tails are related to this ent
+}
+
+Entity* Entity::findHead() {
+	if (parent == NULL) { return this; }
+	else { return parent->findTail(); }
+}
+
+Entity* Entity::findTail() {
+	if (child == NULL) { return this; }
+	else { return child->findTail(); }
 }

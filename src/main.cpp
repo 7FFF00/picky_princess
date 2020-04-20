@@ -1,6 +1,6 @@
 #include "Engine.hpp"
 
-Engine engine(140, 50);
+Engine engine(110, 45);
 
 int main() {
 	while (engine.gameState != Engine::EXIT) {	// main game loop

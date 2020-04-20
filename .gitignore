@@ -1,2 +1,8 @@
 *.exe
 *.bun
+build
+run
+princess
+include/cereal
+fonts/12x12-Markvii.png
+fonts/16x16-RogueYun-AgmEdit.png

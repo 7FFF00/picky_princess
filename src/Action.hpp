@@ -26,6 +26,7 @@ enum ActionComponent {
   AC_NAME,              // action name
   AC_TARGET,            // KEY COMPONENT, action target type, ie SELF/Ground/etc
   AC_POWER,             // action potency/strength
+  AC_PICK,
   AC_COST_TYPE,         // resource type, HP/EN/CH/Fuel/Items/etc
   AC_COST_AMOUNT,       // resource cost
   AC_ELEMENT,           // base damage type
@@ -44,15 +45,15 @@ enum ActionComponent {
 
 class Action {
 public:
-  // Action composition system
-  ActionEvent cause;  // collection of possible reasons for Action to take place, typically only 1
-  std::map<ActionComponent, std::string> effect; // collection of components
+	// Action composition system
+	ActionEvent cause;  // collection of possible reasons for Action to take place, typically only 1
+	std::map<ActionComponent, std::string> effect; // collection of components
 
-  Action();
+	Action();
 	~Action();
 
-  void update(Entity* user, Entity* target);
-  void render();
+	void update(Entity* user, Entity* target);
+	void render();
 };
 
 #endif

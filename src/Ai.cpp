@@ -13,16 +13,23 @@
 #include "Map.hpp"
 #include "BearLibTerminal.h"
 
+void Ai::updateChild() {
+	if (owner->child) { owner->child->update(); }
+}
+
 // Player AI
 PlayerAi::PlayerAi(Entity* e) {
 	owner = e;
-	mode = 0; // assign default player mode to CHOP
+	mode = 0; // assign default player mode to GRAB
 }
 
 void PlayerAi::update() {
 	// handle input
 	if (owner->stats && !owner->stats->isDead()) {
 		// if PLAYER is ALIVE, take input
+		has_moved = false;
+		prev_x = owner->x;
+		prev_y = owner->y;
 		int dx = 0, dy = 0; // taking placeholder values for change in position to test before acting
 		engine.key = terminal_read();
 		switch (engine.key) {
@@ -32,11 +39,12 @@ void PlayerAi::update() {
 			case TK_LEFT : dx = -1; break;
 			case TK_RIGHT : dx = 1; break;
 			// BUMP MODES
-			case TK_C : mode = 0; break; // Chop
-			case TK_S : mode = 1; break; // Stir
-			case TK_H : mode = 2; break; // Heat
-			case TK_I : mode = 3; break; // Ice
+			case TK_G : mode = 0; break; // Grab
+			case TK_C : mode = 1; break; // Chop
+			case TK_S : mode = 2; break; // Stir
+			case TK_H : mode = 3; break; // Heat
 			case TK_E : mode = 4; break; // Eat
+			// case TK_I : mode = 5; break; // Ice
 			// SPECIAL KEYS
 			case TK_ESCAPE : engine.gameState = Engine::EXIT; terminal_close(); break;
 			case TK_SPACE : handleKey(engine.key); break;
@@ -63,6 +71,9 @@ void PlayerAi::update() {
 		// PLAYER is DEAD
 		engine.key = terminal_read();
 	}
+	if (has_moved) {
+		updateChild();
+	}
 }
 
 bool PlayerAi::moveOrInteract(int target_x, int target_y) {
@@ -70,6 +81,7 @@ bool PlayerAi::moveOrInteract(int target_x, int target_y) {
 		// if nothing is there, then move
 		owner->x = target_x;
 		owner->y = target_y;
+		has_moved = true;
 		return true;
 	}
 	else if (!engine.map->isWall(target_x, target_y)) {
@@ -102,8 +114,33 @@ void PlayerAi::handleKey(int ascii) {
 
 	// DEBUG
 	else if (ascii == TK_F1) {
-		Entity* enemy = new Entity("RedXIII", "red", owner->x + 1, owner->y, 'R');
-		engine.actors.push_back(enemy);
+		Entity* npc = new Entity("RedXIII", "red", owner->x + 1, owner->y, 'R');
+		npc->ai = new ChildAi(npc, owner);
+		// owner->child = npc;
+		engine.actors.push_back(npc);
+
+		Entity* npc2 = new Entity("Red14", "red", npc->x + 1, npc->y, 'r');
+		npc2->ai = new ChildAi(npc2, npc);
+		// npc->child = npc2;
+		engine.actors.push_back(npc2);
+
+		Entity* npc3 = new Entity("Red15", "red", npc2->x + 1, npc2->y, 'r');
+		npc3->ai = new ChildAi(npc3, npc2);
+		// npc2->child = npc3;
+		engine.actors.push_back(npc3);
+
+		Entity* npc4 = new Entity("Red16", "red", npc3->x + 1, npc3->y, 'r');
+		npc4->ai = new ChildAi(npc4, npc3);
+		// npc3->child = npc4;
+		engine.actors.push_back(npc4);
+
+		std::string list_of_related_entities = "";
+		for (int i = 0; i < (int)engine.actors.size(); i++) {
+			if (engine.actors[0]->isInFamily(engine.actors[i])) {
+				list_of_related_entities += "X";
+				std::cout << "Relationship found: " << engine.actors[i]->name << std::endl;
+			}
+		}
 	}
 	else if (ascii == TK_F2) {
 		engine.map->debugRevealMap();
@@ -115,6 +152,37 @@ void PlayerAi::handleKey(int ascii) {
 		std::string mode_print = "Current Mode is: ";
 		mode_print += std::to_string(mode);
 		engine.gui->message("#404070", mode_print.c_str());
+
+		std::string mode_size = "Mode Component Count is: ";
+		mode_size += std::to_string(engine.actions[mode]->effect.size());
+		std::cout << mode_size << std::endl;
+		engine.gui->message("#404070", mode_size.c_str());
+
+		if (engine.actions[mode]->effect.find(AC_POWER) != engine.actions[mode]->effect.end()) {
+			std::string mode_power = "Mode Power is: ";
+			mode_power += engine.actions[mode]->effect[AC_POWER];
+			engine.gui->message("#404070", mode_power.c_str());
+		}
+	}
+	else if (ascii == TK_F5) {
+		// font character debug display mode
+		terminal_layer(2);
+		std::string base = "[U+00";
+		std::string mod;
+		int x = 2;
+		int y = 2;
+		for (int i = 0; i < 99; i++) {
+			if (i < 10) { mod += "0"; }
+			mod = base + std::to_string(i) + "]";
+			terminal_printf(x + i, y, mod.c_str());
+			if (i > 0 && i % 20 == 0) {
+				y++;
+				x-= 20;
+			}
+		}
+		terminal_printf(2, 7, "\uE201");
+		terminal_refresh();
+		terminal_read();
 	}
 }
 
@@ -124,8 +192,11 @@ EnemyAi::EnemyAi(Entity* e)  {
 }
 
 void EnemyAi::update() {
-	if(turn_skip) { turn_skip = false; return; }
+	has_moved = false;
+	if (turn_skip) { turn_skip = false; return; }
 	if (owner->stats && owner->stats->isDead()) { return; }
+	prev_x = owner->x;
+	prev_y = owner->y;
 	int target_x = engine.player->x;
 	int target_y = engine.player->y;
 	if (engine.player->stats->isDead()) {
@@ -145,6 +216,9 @@ void EnemyAi::update() {
 		target_y = engine.rng(1, (int)owner->map->height);
 		moveOrInteract(target_x, target_y);
 	}
+	if (has_moved) {
+		updateChild();
+	}
 }
 
 void EnemyAi::moveOrInteract(int target_x, int target_y) {
@@ -160,16 +234,55 @@ void EnemyAi::moveOrInteract(int target_x, int target_y) {
 		if (owner->map->canMove(owner->x + dx, owner->y + dy)) {
 			owner->x += dx;
 			owner->y += dy;
+			has_moved = true;
 		}
 		else if (owner->map->canMove(owner->x + cx, owner->y)) {
 			owner->x += cx;
+			has_moved = true;
 		}
 		else if (owner->map->canMove(owner->x, owner->y + cy)) {
 			owner->y += cy;
+			has_moved = true;
 		}
 	}
 	else {
 		// Target adjacent, Attack
 		owner->stats->attack(engine.player);
+	}
+}
+
+// CHILD AI, aka FOLLOWER ENTITY
+ChildAi::ChildAi(Entity* e, Entity* p)  {
+	owner = e;
+	owner->parent = p;
+	owner->parent->child = e;
+}
+
+void ChildAi::update() {
+	has_moved = false;
+	// if (turn_skip) { turn_skip = false; return; }
+	// else { turn_skip = true; }
+	if (owner->stats && owner->stats->isDead()) { return; }
+
+	if (owner->getDistance(owner->parent->ai->prev_x, owner->parent->ai->prev_y) == 1) {
+		// if parent WAS adjacent, attempt move
+
+		if(owner->map->canMove(owner->parent->ai->prev_x, owner->parent->ai->prev_y)) {
+			// tile is movable, moving, set new prev xy
+			prev_x = owner->x;
+			prev_y = owner->y;
+
+
+			int dx = owner->parent->ai->prev_x - owner->x;
+			int dy = owner->parent->ai->prev_y - owner->y;
+			owner->x += dx;
+			owner->y += dy;
+			has_moved = true;
+		}
+	}
+	else {
+	}
+	if (has_moved) {
+		updateChild();
 	}
 }

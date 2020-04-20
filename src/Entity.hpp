@@ -23,19 +23,22 @@ public:
 	class Stats* stats; // entity will have hp/stats for action use calculation (damage deal/etc)
 	class Ai* ai; // self updating/control property of entity
 
-	int size; // flag for if an entity's size, 0, 1, 2 = Small/Med/Large, largely determines
-		// basic interactions, ie damage reductions from Chop
+	int size; // default 3, aka medium
+		// flag for if an entity's size, 1-5 = Tiny, Small, Medium, Big, Huge, largely determines
+		// basic interactions, ie damage reductions from Chop, grabbability into inventory, and for cooking
 	FoodGroup type; // to indicate which food group a particular thing belongs
 
-	class Inventory* inventory; // if entity is a container/has an inventory of other entities
-	std::vector<class Action> actives; 	// container for skills
-	std::vector<class Passive> passives; // container for passives
+	Entity* parent; // aka a head/owning entity
+	Entity* child; // aka a trailing entity that relies on this entity in its update function
 
-	Entity(const char* name, const char* color, int x, int y, char ch);
+	Entity(const char* name, const char* color, int x, int y, char ch, int size = 3);
 	~Entity();
 	void update();
 	void render() const; // const because function doesn't modify entity
 	float getDistance(int cx, int cy);
+	bool isInFamily(Entity* a); // traverses parents and children to see if self and a are related
+	Entity* findHead(); // return highest parent entity, aka owner
+	Entity* findTail(); // return lowest child entity
 };
 
 #endif

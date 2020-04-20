@@ -58,4 +58,15 @@ void Stats::die() {
 	owner->sprite = NULL;
 	owner->color = "red";
 	owner->blocks = false;
+
+	if (owner->parent != NULL) {
+		owner->parent->child = NULL;
+		owner->parent = NULL;
+	}
+
+	if (owner->child != NULL) {
+		owner->child->ai = NULL;
+		owner->child->parent = NULL;
+		owner->child = NULL;
+	}
 }

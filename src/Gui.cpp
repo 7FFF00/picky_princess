@@ -97,6 +97,15 @@ void Gui::render() {
 	}
 	terminal_print(note_start_x, note_start_y + 2, prep_timer.c_str());
 
+	// RECIPE NOTE (Ingredient List)
+	terminal_layer(3);
+	terminal_color("#606080");
+	Entity* player_item = engine.actors[0]->child;
+	for (int i = 0; player_item != NULL; i++) {
+		terminal_print(note_start_x, note_start_y + 4 + (2 * i), player_item->name);
+		player_item = player_item->child;
+	}
+
 	// Player Name/Title Display
 	terminal_layer(1);
 	std::string player = engine.player->name;
@@ -158,51 +167,42 @@ void Gui::render() {
 	// UPDATE THIS TO PROPERLY DISPLAY CURRENT BUMP MODE
 	// BUMP modes are CHOP STIR HEAT ICE EAT (TRANSFORM OPTIONS)
 	if (engine.player->ai->mode == 0) {
-		// CHOP
+		// GRAB
 		terminal_print(x_pos, y_pos + 7,
-			"[color=#4160e1]Chop[color=#777696] / S / H / I / E");
-		// bump_mode_select = "Chop";	// print selected bump mode in color A
-		// bump_mode_deselect = " / S / H / I / E";	// print unselected
-		// 	// bump modes in color B
-		// terminal_color("#4160e1");
-		// terminal_print(x_pos, y_pos + 7, bump_mode_select.c_str());
-		// terminal_color("#777696");
-		// terminal_print(x_pos + (int)bump_mode_select.size(), y_pos + 7,
-		// 	bump_mode_deselect.c_str());
+			"[color=#4160e1]Grab[color=#777696] / C / S / H / E");
 	}
 	else if (engine.player->ai->mode == 1) {
-		// STIR
+		// CHOP
 		terminal_print(x_pos, y_pos + 7,
-			"[color=#777696]C / [color=#4160e1]Stir[color=#777696] / H / I / E");
+			"[color=#777696]G / [color=#4160e1]Chop[color=#777696] / S / H / E");
 	}
 	else if (engine.player->ai->mode == 2) {
-		// HEAT
+		// STIR
 		terminal_print(x_pos, y_pos + 7,
-			"[color=#777696]C / S / [color=#4160e1]Heat[color=#777696] / I / E");
+			"[color=#777696]G / C / [color=#4160e1]Stir[color=#777696] / H / E");
 	}
 	else if (engine.player->ai->mode == 3) {
-		// ICE
+		// HEAT
 		terminal_print(x_pos, y_pos + 7,
-			"[color=#777696]C / S / H / [color=#4160e1]Ice[color=#777696] / E");
+			"[color=#777696]G / C / S / [color=#4160e1]Heat[color=#777696] / E");
 	}
 	else if (engine.player->ai->mode == 4) {
 		// EAT
 		terminal_print(x_pos, y_pos + 7,
-			"[color=#777696]C / S / H / I / [color=#4160e1]Eat");
+			"[color=#777696]G / C / S / H / [color=#4160e1]Eat");
 	}
 
 	// MESSAGE LOG (Background)
+	int log_x = x_pos + 50;
 	terminal_layer(1);
 	terminal_color("#80FFFFFF"); // ARGB
 	for (int i = 0; i < (int)engine.ui_height - 2; i++) {
 		for (int j = 0; j < (int)engine.log_width + 2; j++) {
 			// printing unicode full block
-			terminal_print(x_pos + 80 + j, y_pos + i + 1, "[U+2588]");
+			terminal_print(log_x + j, y_pos + i + 1, "[U+2588]");
 		}
 	}
 	terminal_color("#FFFFFFFF"); // ARGB, reset to normal alpha/color output
-
-	terminal_print(28, 40, "\uE100");
 
 	// MESSAGE LOG (Log Text)
 	terminal_layer(2);
@@ -230,9 +230,15 @@ void Gui::render() {
 
 			// print based on line placement and using modified string transparency level for order
 			terminal_color(color_mod.c_str());
-			terminal_print(x_pos + 80, y_pos + i + 1, log[(int)log.size() - i - 1]->text.c_str());
+			terminal_print(log_x, y_pos + i + 1, log[(int)log.size() - i - 1]->text.c_str());
 		}
 	}
+
+
+	// AVATAR DISPLAY
+	int avatar_x = x_pos + 27;
+	terminal_color("#FFFFFFFF"); // ARGB, reset to normal alpha/color output
+	terminal_print(avatar_x, y_pos, "\uE100");
 
 	// resetting engine colors
 	terminal_color(engine.default_color);
