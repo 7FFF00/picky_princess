@@ -1,1 +1,0 @@
-# Picky Princess, dungeon crawler Roguelike game
