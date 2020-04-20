@@ -12,4 +12,4 @@ g++ src/*.cpp -o princess -Iinclude -Llib -lBearLibTerminal -Wall
 ```
 
 ## Screenshots
-![Gameplay](https://github.com/vvdf/picky_princess/raw/portable/resources/gameplay_190420.png)
+![Gameplay](https://github.com/vvdf/picky_princess/raw/portable/resources/gameplay190420.png)
