@@ -1,9 +1,9 @@
 # Picky Princess
 Terminal based Roguelike dungeon crawler, themed around cooking and with a pastel based, cute aesthetic.
 
-## Libraries
-bearlibterminal
-cereal (to be implemented)
+## Librariesb
+* earlibterminal
+* cereal (to be implemented)
 
 ## Build
 On Linux:
