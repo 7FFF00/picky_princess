@@ -2,7 +2,7 @@
 Terminal based Roguelike dungeon crawler, themed around cooking and with a pastel based, cute aesthetic.
 
 ## Librariesb
-* earlibterminal
+* bearlibterminal
 * cereal (to be implemented)
 
 ## Build
